@@ -10,17 +10,18 @@ import UIKit
 
 class TaskListViewController: UITableViewController {
     
-    var itemArray = [ "Find Mike", "Buy Eggs", "Buy Foods"]
+    var itemArray = [TaskItem]()
     
-    let defaults = UserDefaults.standard
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Tasks.plist")
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        if let items = defaults.array(forKey: "TaskList") as? [String] {
-            itemArray = items
-        }
+        print(self.dataFilePath!)
+        
+        loadItems()
+        
     }
 
     // MARKS - TableView Datasource Methods
@@ -31,16 +32,23 @@ class TaskListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        
+        cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
     
     // MARK - TableView Delegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(itemArray[indexPath.row])
         
-        tableView.cellForRow(at: indexPath)?.accessoryType = tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark ? .none : .checkmark
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        self.saveItems()
+        
+        tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -55,10 +63,13 @@ class TaskListViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add I tem", style: .default) { (action) in
             // what will happen once the user clicks the add item button on our UIAlert
-            self.itemArray.append(textField.text!)
             
-            // store array item
-            self.defaults.set(self.itemArray, forKey: "TaskList")
+            let newItem = TaskItem()
+            newItem.title = textField.text!
+            
+            self.itemArray.append(newItem)
+            
+            self.saveItems()
             
             self.tableView.reloadData()
         }
@@ -72,6 +83,28 @@ class TaskListViewController: UITableViewController {
         
         present(alert, animated: true, completion: nil)
         
+    }
+    
+    func saveItems() -> Void {
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+    }
+    
+    func loadItems() -> Void {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([TaskItem].self, from: data)
+            } catch {
+                print("Error decoding item array, \(error)")
+            }
+        }
     }
     
 }
