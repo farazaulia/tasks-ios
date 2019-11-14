@@ -10,11 +10,17 @@ import UIKit
 
 class TaskListViewController: UITableViewController {
     
-    let itemArray = ["Find Mike", "Buy Eggs", "Buy Foods"]
+    var itemArray = [ "Find Mike", "Buy Eggs", "Buy Foods"]
+    
+    let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        if let items = defaults.array(forKey: "TaskList") as? [String] {
+            itemArray = items
+        }
     }
 
     // MARKS - TableView Datasource Methods
@@ -40,5 +46,33 @@ class TaskListViewController: UITableViewController {
     }
     
 
+    // MARK - Add New Item
+    @IBAction func addItemButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField: UITextField = UITextField()
+        
+        let alert = UIAlertController(title: "Add new task", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Add I tem", style: .default) { (action) in
+            // what will happen once the user clicks the add item button on our UIAlert
+            self.itemArray.append(textField.text!)
+            
+            // store array item
+            self.defaults.set(self.itemArray, forKey: "TaskList")
+            
+            self.tableView.reloadData()
+        }
+        
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "What do you want to do?"
+            textField = alertTextField
+        }
+        
+        alert.addAction(action)
+        
+        present(alert, animated: true, completion: nil)
+        
+    }
+    
 }
 

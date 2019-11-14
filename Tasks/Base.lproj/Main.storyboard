@@ -29,7 +29,14 @@
                             <outlet property="delegate" destination="hEI-r2-xPA" id="rq8-eH-cts"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="My Tasks" id="grl-Ga-den"/>
+                    <navigationItem key="navigationItem" title="My Tasks" id="grl-Ga-den">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="wnQ-FU-NVI">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <action selector="addItemButtonPressed:" destination="hEI-r2-xPA" id="Hs8-DQ-2RP"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IV9-30-b0T" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
